@@ -1,3 +1,4 @@
+# updating the readme file  
 # Online Event Management System Using Django
 
 ## 📋 Project Overview
