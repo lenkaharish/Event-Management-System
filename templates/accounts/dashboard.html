@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Event Management System{% endblock %}
+
+{% block navbar_class %}navbar-user-panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 style="color: #667eea;">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </h1>
+            <p class="text-muted">Welcome Admin!</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 style="color: #667eea;">{{ total_bookings }}</h3>
+                    <p class="text-muted mb-0">Total Bookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 style="color: #667eea;">{{ upcoming_events }}</h3>
+                    <p class="text-muted mb-0">Upcoming Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 style="color: #667eea;">{{ user_profile.get_role_display }}</h3>
+                    <p class="text-muted mb-0">Your Role</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 style="color: #667eea;">{{ user.profile.created_at|date:"b Y" }}</h3>
+                    <p class="text-muted mb-0">Member Since</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Bookings -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket #</th>
+                                        <th>Event</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings|slice:":5" %}
+                                        <tr>
+                                            <td><strong>{{ booking.ticket_number|truncatechars:12 }}</strong></td>
+                                            <td>{{ booking.event.title|truncatechars:25 }}</td>
+                                            <td>{{ booking.event.date }}</td>
+                                            <td>
+                                                {% if booking.status == 'confirmed' %}
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                {% elif booking.status == 'cancelled' %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'booking-detail' booking.id %}" class="btn btn-sm btn-info">View</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <a href="{% url 'user-bookings' %}" class="btn btn-sm btn-primary">View All Bookings</a>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> No bookings yet. <a href="{% url 'event-list' %}">Browse events</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-lightning-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'event-list' %}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-search"></i> Browse Events
+                    </a>
+                    <a href="{% url 'create-event' %}" class="btn btn-outline-success w-100 mb-2">
+                        <i class="fas fa-plus-circle"></i> Create Event
+                    </a>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-info w-100 mb-2">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </a>
+                    {% if user_profile.role == 'organizer' %}
+                        <a href="{% url 'organizer-events' %}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-calendar-check"></i> My Events
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-id-card"></i> Profile Info</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="small mb-1"><strong>Role:</strong> {{ user_profile.get_role_display }}</p>
+                    {% if user_profile.phone %}
+                        <p class="small mb-1"><strong>Phone:</strong> {{ user_profile.phone }}</p>
+                    {% endif %}
+                    {% if user_profile.company %}
+                        <p class="small mb-1"><strong>Company:</strong> {{ user_profile.company }}</p>
+                    {% endif %}
+                    <hr>
+                    <a href="{% url 'profile' %}" class="btn btn-sm btn-primary w-100">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Event Management System{% endblock %}
+
+{% block navbar_class %}navbar-user-panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 style="color: #667eea;">
+                <i class="fas fa-ticket-alt"></i> My Bookings
+            </h1>
+            <p class="text-muted">View and manage all your event bookings</p>
+        </div>
+    </div>
+
+    {% if bookings %}
+        <div class="row">
+            {% for booking in bookings %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ booking.event.title }}</h6>
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="badge bg-success">Confirmed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <p class="small mb-1"><strong>Ticket #:</strong> {{ booking.ticket_number }}</p>
+                                <p class="small mb-1"><strong>Event Date:</strong> {{ booking.event.date }} at {{ booking.event.time }}</p>
+                                <p class="small mb-1"><strong>Location:</strong> {{ booking.event.location }}</p>
+                                <p class="small mb-1"><strong>Tickets:</strong> {{ booking.quantity }}</p>
+                            </div>
+                            <div class="border-top pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h6 mb-0">Total: <strong style="color: #667eea;">₹{{ booking.total_price }}</strong></span>
+                                    <small class="text-muted">Booked: {{ booking.booking_date|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="btn-group w-100" role="group">
+                                <a href="{% url 'booking-detail' booking.id %}" class="btn btn-sm btn-info flex-grow-1">View Details</a>
+                                <a href="{% url 'download-ticket' booking.id %}" class="btn btn-sm btn-success flex-grow-1">Download Ticket</a>
+                                {% if booking.status != 'cancelled' %}
+                                    <a href="{% url 'cancel-booking' booking.id %}" class="btn btn-sm btn-danger flex-grow-1">Cancel</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" style="padding: 60px;">
+            <h4><i class="fas fa-inbox"></i> No bookings yet</h4>
+            <p class="mb-3">You haven't booked any events yet. Start exploring events and make your first booking!</p>
+            <a href="{% url 'event-list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-search"></i> Browse Events
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

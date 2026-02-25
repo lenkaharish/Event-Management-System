@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Event Management System{% endblock %}
+
+{% block navbar_class %}navbar-user-panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if user_profile.profile_picture %}
+                        <img src="{{ user_profile.profile_picture.url }}" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-primary rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; color: white;">
+                            <i class="fas fa-user" style="font-size: 4rem;"></i>
+                        </div>
+                    {% endif %}
+                    <h4>{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted">{{ user_profile.get_role_display }}</p>
+                    <hr>
+                    <p class="small">
+                        <strong>Email:</strong> {{ user.email }}<br>
+                        {% if user_profile.phone %}<strong>Phone:</strong> {{ user_profile.phone }}<br>{% endif %}
+                        {% if user_profile.company %}<strong>Company:</strong> {{ user_profile.company }}<br>{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab">Edit Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="bookings-tab" data-bs-toggle="tab" href="#bookings" role="tab">My Bookings</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <!-- Profile Tab -->
+                <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4"><i class="fas fa-edit"></i> Update Your Profile</h5>
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <h6 class="mb-3 text-muted">Account Information</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        {{ user_form.first_name }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        {{ user_form.last_name }}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                    {{ user_form.email }}
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6 class="mb-3 text-muted">Profile Details</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.role.id_for_label }}" class="form-label">Role</label>
+                                    {{ profile_form.role }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                    {{ profile_form.phone }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.company.id_for_label }}" class="form-label">Company/Organization</label>
+                                    {{ profile_form.company }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                                    {{ profile_form.bio }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                                    {{ profile_form.profile_picture }}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bookings Tab -->
+                <div class="tab-pane fade" id="bookings" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4"><i class="fas fa-ticket-alt"></i> My Bookings ({{ bookings.count }})</h5>
+                            {% if bookings %}
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Ticket #</th>
+                                                <th>Event</th>
+                                                <th>Date</th>
+                                                <th>Quantity</th>
+                                                <th>Total Price</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for booking in bookings %}
+                                                <tr>
+                                                    <td><strong>{{ booking.ticket_number }}</strong></td>
+                                                    <td>{{ booking.event.title }}</td>
+                                                    <td>{{ booking.event.date }}</td>
+                                                    <td>{{ booking.quantity }}</td>
+                                                    <td>₹{{ booking.total_price }}</td>
+                                                    <td>
+                                                        {% if booking.status == 'confirmed' %}
+                                                            <span class="badge bg-success">Confirmed</span>
+                                                        {% elif booking.status == 'cancelled' %}
+                                                            <span class="badge bg-danger">Cancelled</span>
+                                                        {% else %}
+                                                            <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'booking-detail' booking.id %}" class="btn btn-sm btn-info">View</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> You haven't booked any events yet. <a href="{% url 'event-list' %}">Browse events</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

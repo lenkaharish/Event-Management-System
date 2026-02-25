@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Events - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 style="color: #667eea;">
+                <i class="fas fa-list"></i> All Events
+            </h1>
+            <p class="text-muted">Browse and filter all available events</p>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="GET" class="card p-4">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ form.search }}
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        {{ form.date_from }}
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        {{ form.price_max }}
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row">
+        {% for event in events %}
+            <div class="col-md-4 mb-4">
+                <div class="card event-card">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                    {% else %}
+                        <div style="height: 250px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-image" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ event.get_category_display }}</span>
+                            {% if event.available_seats == 0 %}
+                                <span class="badge bg-danger">Full</span>
+                            {% elif event.available_seats <= 5 %}
+                                <span class="badge bg-warning">Limited</span>
+                            {% else %}
+                                <span class="badge bg-success">Available</span>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text text-muted small">{{ event.description|truncatewords:20 }}</p>
+                        
+                        <div class="event-meta mb-3 small">
+                            <div><i class="fas fa-calendar text-primary"></i> {{ event.date }}</div>
+                            <div><i class="fas fa-clock text-primary"></i> {{ event.time }}</div>
+                            <div><i class="fas fa-map-marker-alt text-primary"></i> {{ event.location }}</div>
+                            <div><i class="fas fa-users text-primary"></i> {{ event.available_seats }} seats left</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 mb-0" style="color: #667eea;">
+                                {% if event.price == 0 %}
+                                    <span class="badge bg-success">FREE</span>
+                                {% else %}
+                                    ₹{{ event.price }}
+                                {% endif %}
+                            </span>
+                            <a href="{% url 'event-detail' event.pk %}" class="btn btn-sm btn-primary">View & Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center" style="padding: 40px;">
+                    <h5><i class="fas fa-inbox"></i> No events found</h5>
+                    <p class="mb-0">Try adjusting your filters or create a new event.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'create-event' %}" class="btn btn-primary mt-3">Create Event</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

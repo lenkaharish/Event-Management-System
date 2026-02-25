@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Event Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Event Image and Basic Info -->
+        <div class="col-md-6 mb-4">
+            {% if event.image %}
+                <img src="{{ event.image.url }}" class="img-fluid rounded" style="width: 100%; max-height: 500px; object-fit: cover;" alt="{{ event.title }}">
+            {% else %}
+                <div style="height: 500px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; border-radius: 10px; color: white;">
+                    <i class="fas fa-image" style="font-size: 5rem;"></i>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Event Details -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <span class="badge bg-primary" style="font-size: 0.9rem;">{{ event.get_category_display }}</span>
+                {% if event.status == 'approved' %}
+                    <span class="badge bg-success" style="font-size: 0.9rem;">Active</span>
+                {% elif event.status == 'pending' %}
+                    <span class="badge bg-warning" style="font-size: 0.9rem;">Pending Approval</span>
+                {% else %}
+                    <span class="badge bg-danger" style="font-size: 0.9rem;">Cancelled</span>
+                {% endif %}
+            </div>
+            
+            <h1 class="mb-3">{{ event.title }}</h1>
+            
+            <div class="card p-4 mb-4">
+                <h5 class="mb-3"><i class="fas fa-info-circle"></i> Event Information</h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Date:</strong></td>
+                        <td><i class="fas fa-calendar text-primary"></i> {{ event.date }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Time:</strong></td>
+                        <td><i class="fas fa-clock text-primary"></i> {{ event.time }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Location:</strong></td>
+                        <td><i class="fas fa-map-marker-alt text-primary"></i> {{ event.location }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price:</strong></td>
+                        <td>
+                            {% if event.price == 0 %}
+                                <span class="badge bg-success">FREE</span>
+                            {% else %}
+                                <span style="color: #667eea; font-weight: bold; font-size: 1.2rem;">₹{{ event.price }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Available Seats:</strong></td>
+                        <td>
+                            {% if event.available_seats == 0 %}
+                                <span class="badge bg-danger">SOLD OUT</span>
+                            {% else %}
+                                {{ event.available_seats }} / {{ event.seats }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Organizer:</strong></td>
+                        <td>{{ event.organizer.get_full_name|default:event.organizer.username }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Booking Section -->
+            {% if event.available_seats > 0 and event.status == 'approved' %}
+                <form method="GET" action="{% url 'create-booking' event.id %}">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-2">
+                        <i class="fas fa-ticket-alt"></i> Book Now
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-danger w-100">
+                    <i class="fas fa-times-circle"></i> This event is not available for booking.
+                </div>
+            {% endif %}
+            
+            {% if user.is_authenticated and event.organizer == user %}
+                <div class="btn-group w-100 mb-3" role="group">
+                    <a href="{% url 'edit-event' event.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'delete-event' event.pk %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Description -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card p-4">
+                <h5 class="mb-3"><i class="fas fa-file-alt"></i> Event Description</h5>
+                <p style="line-height: 1.8; color: #555;">{{ event.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

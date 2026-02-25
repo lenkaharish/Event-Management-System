@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking - Event Management System{% endblock %}
+
+{% block navbar_class %}navbar-user-panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Booking Header -->
+            <div class="card mb-4">
+                <div class="card-body bg-light p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">Booking Confirmation</h3>
+                            <p class="text-muted mb-0">Ticket #{{ booking.ticket_number }}</p>
+                        </div>
+                        <div class="text-end">
+                            {% if booking.status == 'confirmed' %}
+                                <span class="badge bg-success" style="font-size: 1rem;">CONFIRMED</span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger" style="font-size: 1rem;">CANCELLED</span>
+                            {% else %}
+                                <span class="badge bg-warning" style="font-size: 1rem;">{{ booking.get_status_display|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4"><i class="fas fa-calendar-alt"></i> Event Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>{{ booking.event.title }}</h6>
+                            <p class="mb-2 text-muted">
+                                <span>{{ booking.event.get_category_display }}</span> | 
+                                <span>{{ booking.event.date }}</span>
+                            </p>
+                            <p class="small">
+                                <strong><i class="fas fa-clock"></i> Time:</strong> {{ booking.event.time }}<br>
+                                <strong><i class="fas fa-map-marker-alt"></i> Location:</strong> {{ booking.event.location }}<br>
+                                <strong><i class="fas fa-user"></i> Organizer:</strong> {{ booking.event.organizer.get_full_name|default:booking.event.organizer.username }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 bg-light p-3 rounded">
+                            <h6 class="text-muted">About Event</h6>
+                            <p class="small mb-0">{{ booking.event.description|truncatewords:30 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Booking Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4"><i class="fas fa-file-invoice"></i> Booking Details</h5>
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Ticket Number:</strong></td>
+                            <td><strong style="color: #667eea;">{{ booking.ticket_number }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attendee:</strong></td>
+                            <td>{{ booking.user.get_full_name|default:booking.user.username }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ booking.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Number of Tickets:</strong></td>
+                            <td>{{ booking.quantity }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Price per Ticket:</strong></td>
+                            <td>₹{{ booking.event.price }}</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #e9ecef;">
+                            <td><strong>Total price:</strong></td>
+                            <td><strong style="color: #667eea; font-size: 1.2rem;">₹{{ booking.total_price }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment Status:</strong></td>
+                            <td>
+                                {% if booking.payment_status == 'completed' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif booking.payment_status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Booking Date:</strong></td>
+                            <td>{{ booking.booking_date|date:"F d, Y H:i" }}</td>
+                        </tr>
+                    </table>
+                    
+                    {% if booking.notes %}
+                        <div class="alert alert-info mt-3">
+                            <strong>Notes:</strong> {{ booking.notes }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4"><i class="fas fa-cogs"></i> Actions</h5>
+                    <div class="btn-group w-100" role="group">
+                        <a href="{% url 'download-ticket' booking.id %}" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download Ticket
+                        </a>
+                        {% if booking.status != 'cancelled' %}
+                            <a href="{% url 'cancel-booking' booking.id %}" class="btn btn-danger">
+                                <i class="fas fa-times"></i> Cancel Booking
+                            </a>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'event-detail' booking.event.id %}" class="btn btn-secondary w-100 mt-2">
+                        <i class="fas fa-arrow-left"></i> Back to Event
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Booking - Event Management System{% endblock %}
+
+{% block navbar_class %}navbar-user-panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-danger mb-4 text-center">
+                        <i class="fas fa-times-circle"></i> Cancel Booking
+                    </h2>
+                    
+                    <div class="alert alert-warning">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Warning!</strong>
+                        <p class="mb-0">Cancelling this booking is permanent. You will lose your seat(s) for this event.</p>
+                    </div>
+                    
+                    <div class="card bg-light p-3 mb-4">
+                        <h6 class="text-muted">Booking Details:</h6>
+                        <p class="mb-2">
+                            <strong>Event:</strong> {{ booking.event.title }}<br>
+                            <strong>Ticket #:</strong> {{ booking.ticket_number }}<br>
+                            <strong>Tickets:</strong> {{ booking.quantity }}<br>
+                            <strong>Total Price:</strong> <span style="color: #667eea;">₹{{ booking.total_price }}</span>
+                        </p>
+                    </div>
+                    
+                    <p class="text-muted small mb-3">
+                        <i class="fas fa-info-circle"></i> The reserved seats will be available for other users once cancelled.
+                    </p>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg w-100 mb-2">
+                            <i class="fas fa-times"></i> Yes, Cancel Booking
+                        </button>
+                        <a href="{% url 'booking-detail' booking.pk %}" class="btn btn-secondary btn-lg w-100">
+                            <i class="fas fa-arrow-left"></i> Keep Booking
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
