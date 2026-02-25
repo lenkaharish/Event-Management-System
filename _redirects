@@ -1,0 +1,24 @@
+# Netlify Redirects for Django Application
+# This file handles URL rewriting for the Django backend
+
+# Static files - serve as-is
+/static/*                    /static/:splat              200
+/media/*                     /media/:splat               200
+/staticfiles/*               /staticfiles/:splat         200
+
+# Admin panel
+/admin/*                     /.netlify/functions/api     200
+
+# API routes
+/api/*                       /.netlify/functions/api     200
+
+# Django app routes
+/accounts/*                  /.netlify/functions/api     200
+/events/*                    /.netlify/functions/api     200
+/bookings/*                  /.netlify/functions/api     200
+
+# Home page
+/                            /.netlify/functions/api     200
+
+# Catch-all for 404
+/*                           /.netlify/functions/api     200

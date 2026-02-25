@@ -182,6 +182,39 @@ event_project/
    - Website: http://127.0.0.1:8000/
    - Admin Panel: http://127.0.0.1:8000/admin/
 
+## 🚀 Deployment
+
+### ⚠️ Important: Netlify Cannot Host This Django App
+
+**Netlify's static hosting does NOT support Django** because it's a Python server-side framework. Every request returns a 404 because there's no Python runtime.
+
+### ✅ Recommended Hosting Platforms
+
+**Best Options for Django:**
+1. **Railway** (Recommended) - https://railway.app
+2. **Render** - https://render.com
+3. **Heroku** - https://www.heroku.com
+4. **PythonAnywhere** - https://www.pythonanywhere.com
+5. **AWS/DigitalOcean** - Self-managed
+
+### 🚀 Quick Deploy to Railway
+
+```bash
+# 1. Create Railway account and link GitHub
+# 2. Create new service from GitHub repo
+# 3. Set environment variables in Railway dashboard:
+#    - SECRET_KEY=your-secure-key
+#    - DEBUG=False
+#    - ALLOWED_HOSTS=*.railway.app
+
+# 4. Push to GitHub (Railway auto-deploys)
+git add .
+git commit -m "Ready for production"
+git push origin main
+```
+
+**For detailed deployment instructions, see [DEPLOY_GUIDE.md](DEPLOY_GUIDE.md)**
+
 ## 📄 Main Pages & Features
 
 ### Public Pages

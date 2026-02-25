@@ -1,0 +1,89 @@
+# Netlify Configuration for Django Event Management System
+# Note: This configuration redirects to a Python backend
+# Netlify static hosting does NOT natively support Django
+
+[build]
+# Django app requires Python backend - static hosting won't work
+# Option 1: Deploy backend separately and use this for frontend redirect
+# Option 2: Use a Python-capable hosting service (see DEPLOY_GUIDE.md)
+
+command = "echo 'Django app requires Python runtime. See DEPLOY_GUIDE.md'"
+publish = "staticfiles"
+
+[build.environment]
+# Ensure Python-capable hosting is used
+DJANGO_SETTINGS_MODULE = "event_project.settings"
+
+# Redirect all requests to the backend server
+[[redirects]]
+from = "/*"
+to = "/.netlify/functions/django-handler"
+status = 200
+
+# Handle API routes
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/django-handler/:splat"
+status = 200
+
+# Static files - serve directly
+[[redirects]]
+from = "/static/*"
+to = "/static/:splat"
+status = 200
+
+# Media files - serve directly
+[[redirects]]
+from = "/media/*"
+to = "/media/:splat"
+status = 200
+
+# 404 handling - Django will handle via custom 404 view
+[[redirects]]
+from = "/*"
+to = "/404.html"
+status = 404
+
+[context.production]
+command = "python manage.py collectstatic --noinput"
+publish = "staticfiles"
+
+[context.deploy-preview]
+command = "python manage.py collectstatic --noinput"
+publish = "staticfiles"
+
+[context.branch-deploy]
+command = "python manage.py collectstatic --noinput"
+publish = "staticfiles"
+
+# Environment variables for production
+[env]
+DJANGO_SETTINGS_MODULE = "event_project.settings"
+DEBUG = "False"
+
+[env.production]
+SECURE_SSL_REDIRECT = "True"
+SESSION_COOKIE_SECURE = "True"
+CSRF_COOKIE_SECURE = "True"
+
+# Headers for security and caching
+[[headers]]
+for = "/*"
+
+[headers.values]
+X-Frame-Options = "SAMEORIGIN"
+X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
+Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self'"
+
+[[headers]]
+for = "/static/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/media/*"
+
+[headers.values]
+Cache-Control = "public, max-age=604800"
